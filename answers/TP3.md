@@ -44,3 +44,13 @@ The badges now contain **JSON**, the whole topic object, for example:
 ```
 
 The `topic` column no longer exists (the migration dropped it and added `topic_id`). In the views, `$ticket->topic` now calls the new `topic()` **belongsTo relationship**, which returns a `Topic` model, not a text. When Blade prints an object with `{{ }}`, Eloquent converts the model to a string, and a model converted to a string becomes its JSON representation. To show only the name we must write `$ticket->topic->name` (exercise 5).
+
+## Exercise 5
+
+The badges show topic names again (*Laravel, Git, Blade, Database…*) and the form offers the 5 topics from the database, sorted by name: Blade, Database, Git, Laravel, Setup.
+
+**Question 5. With an option's value changed to 99, which message do you get, and which rule produced it?**
+
+> **The selected topic id is invalid.**
+
+It comes from the rule **`'exists:topics,id'`** on `topic_id` in `store()`: Laravel runs a query to check that a row with `id = 99` exists in the `topics` table; there are only 5 topics (ids 1 to 5), so the value is refused and no ticket is created.
