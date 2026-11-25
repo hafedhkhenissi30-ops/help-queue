@@ -54,3 +54,11 @@ The badges show topic names again (*Laravel, Git, Blade, Database…*) and the f
 > **The selected topic id is invalid.**
 
 It comes from the rule **`'exists:topics,id'`** on `topic_id` in `store()`: Laravel runs a query to check that a row with `id = 99` exists in the `topics` table; there are only 5 topics (ids 1 to 5), so the value is refused and no ticket is created.
+
+## Exercise 6
+
+**Question 6. Click a topic badge. How many tickets does this topic have?**
+
+I clicked the **Laravel** badge of the first ticket: the page `/topics/2` shows **Topic: Laravel — 2 tickets**.
+(With my data, the counts per topic are: Git 4, Laravel 2, Blade 1, Database 2, Setup 0. The numbers change after each `migrate:fresh --seed`, because the seeder picks a random topic for each ticket.)
+The page lists the tickets through the relationship `$topic->tickets()`, which runs `select * from tickets where topic_id = 2 order by id`.
