@@ -107,3 +107,23 @@ I checked my own README by following it in a **new folder**: `git clone`, then t
 - Missing step (if any): …
 
 Steps that are often forgotten and make a project fail: `composer install` (no `vendor/` folder → *Failed opening required vendor/autoload.php*), `cp .env.example .env` and `php artisan key:generate` (*No application encryption key has been specified*), `npm install` (*vite: command not found* with `composer run dev`), and `php artisan migrate --seed` (*no such table: tickets*).
+
+## Bonus
+
+- **"topic" instead of "topic id":** `validate()` takes a third argument with custom attribute names: `$request->validate([...], [], ['topic_id' => 'topic'])`. The messages became *The topic field is required.* and *The selected topic is invalid.* (instead of *The selected topic id is invalid.*).
+- **Number of tickets per topic:** `index()` also sends `Topic::withCount('tickets')->orderBy('name')->get()`. `withCount` adds a `tickets_count` attribute to each topic, computed by the database in the same query. Above the queue: *Topics: Blade (1) · Database (2) · Git (4) · Laravel (2) · Setup (0)*, each one a link to its topic page.
+
+## Final questions
+
+**1. What does `Ticket::waiting()` do, and why is a scope better than repeating the `where`?**
+
+It runs the scope `scopeWaiting()`: it adds `where status = 'waiting'` and `order by id` to the query, giving the waiting tickets from the oldest to the newest. (Laravel drops the `scope` prefix: `scopeWaiting` is called as `waiting()`.)
+A scope is better because the rule "what is a waiting ticket, and in which order" is written **once**, in the model, with a clear name. We use it in three places (the queue, the position in the queue, `/queue.json`). If the rule changes (another status name, another order), we change one method instead of hunting every copied `where`, with the risk of forgetting one and getting different results on different pages. It also reads like a sentence and can be chained with other conditions: `Ticket::with('topic')->waiting()->where('id', '<', 10)`.
+
+**2. Which table holds the `topic_id` column, and why on that side of the relationship?**
+
+The **`tickets`** table. It is a one-to-many relationship: one topic has **many** tickets, and each ticket belongs to **one** topic. A column holds a single value, so the link goes on the "many" side: each ticket stores the id of its one topic. On the other side, a topic would need to store a whole list of ticket ids in one column, which a relational database cannot do properly. That is why `Ticket` has `belongsTo(Topic::class)` (it holds the foreign key) and `Topic` has `hasMany(Ticket::class)`.
+
+**3. Who, besides a browser, could use `/queue.json`?**
+
+Any program that can make an HTTP request and read JSON: a mobile app for the students, a JavaScript front-end (React, Vue) or a page that refreshes the queue automatically, a display screen in the classroom, a Python or Node script computing statistics, a Discord/Slack bot announcing the next student, or tools like `curl` and Postman.
