@@ -72,3 +72,35 @@ Deleting ticket 2: the browser asks **"Remove this ticket?"**, then I am back on
 
 - **`_token`**, produced by `@csrf`: the secret CSRF token of my session. Laravel compares it with the one stored in the session to check the request really comes from our own page (protection against CSRF).
 - **`_method`** with the value `DELETE`, produced by `@method('DELETE')`: HTML forms can only send GET or POST. The form is sent as POST, and Laravel reads `_method` to treat it as a **DELETE** request, so it matches the route `Route::delete('/tickets/{ticket}', ...)` (method spoofing).
+
+## Exercise 7
+
+**7.1 — `php artisan route:list --path=tickets` with the five separate routes:**
+
+```
+ GET|HEAD   tickets ................ tickets.index › TicketController@index
+ POST       tickets ................ tickets.store › TicketController@store
+ GET|HEAD   tickets/create ......... tickets.create › TicketController@create
+ GET|HEAD   tickets/{ticket} ....... tickets.show › TicketController@show
+ DELETE     tickets/{ticket} ....... tickets.destroy › TicketController@destroy
+
+                                                       Showing [5] routes
+```
+
+**7.3 — the same command after `Route::resource('tickets', ...)->only([...])`:**
+
+```
+ GET|HEAD   tickets ................ tickets.index › TicketController@index
+ POST       tickets ................ tickets.store › TicketController@store
+ GET|HEAD   tickets/create ......... tickets.create › TicketController@create
+ GET|HEAD   tickets/{ticket} ....... tickets.show › TicketController@show
+ DELETE     tickets/{ticket} ....... tickets.destroy › TicketController@destroy
+
+                                                       Showing [5] routes
+```
+
+**Question 8. Compare both results. What changed? Why does `Route::resource` work without any other change?**
+
+**Nothing changed** in the result: the same 5 routes, with the same methods, addresses, names and controller methods (I compared both outputs line by line: identical). Only `routes/web.php` is shorter: one instruction instead of five lines.
+
+`Route::resource` works directly because our controller already follows Laravel's **resource conventions**: the methods are called `index`, `create`, `store`, `show` and `destroy`, the routes are named `tickets.index`, `tickets.create`… and the parameter is `{ticket}` (the singular of `tickets`), which still matches `show(Ticket $ticket)` and `destroy(Ticket $ticket)`. Laravel also puts `tickets/create` before `tickets/{ticket}` by itself. `->only([...])` leaves out `edit` and `update`, which we have not written.
