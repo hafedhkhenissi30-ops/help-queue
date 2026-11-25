@@ -21,3 +21,9 @@
 **Question 2. Which error code do you get for `/helo`, and why?**
 
 **404 Not Found.** Laravel compares the address with every route in `routes/web.php`. No route matches `/helo` (only `/hello` exists), so Laravel answers that the page does not exist.
+
+## Exercise 4
+
+**Question 3. Why does `/hello/a/b` not work?**
+
+It answers **404**. The parameter `{name}` matches exactly **one segment** of the address, and a segment stops at the `/`. `/hello/a/b` has three segments (`hello`, `a`, `b`), while the route `/hello/{name}` only has two, so no route matches.
