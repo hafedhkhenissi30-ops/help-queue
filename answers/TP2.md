@@ -40,3 +40,21 @@ What I observed with Laravel 13: in Chrome the form *still worked* without `@csr
 So the protection is still there: a request coming **from another site** is refused with 419.
 
 The token protects against **CSRF (Cross-Site Request Forgery)**: a malicious website makes the browser of a logged-in user send a request to our application (create, delete, change something) without the user knowing, using the user's cookies. That site cannot know the secret token stored in the user's session, and its request is marked `cross-site`, so Laravel refuses it.
+
+## Exercise 5
+
+| Try | Messages shown |
+|---|---|
+| 1. Form completely empty | `The name field is required.` and `The topic field is required.` |
+| 2. Name filled in, no topic | `The topic field is required.` |
+| 3. An `<option>` changed to `Cooking` with the developer tools | `The selected topic is invalid.` |
+
+(No message for the description: it is `nullable`.)
+
+**Question 5. In the second try, what happens to the name you had typed? Which part of the view is responsible?**
+
+The name **stays in the field** ("Hafedh" is still there after the refused submission). When validation fails, Laravel redirects back to the form and keeps the submitted values in the session for one request. In the view, **`value="{{ old('name') }}"`** puts that previous value back into the input (and `@selected(old('topic') === $topic)` does the same for the select).
+
+**Question 6. Why must validation always run on the server?**
+
+Because everything on the client side can be changed by the user: the HTML of the form (developer tools), or the whole request (curl, Postman, a script) without using the form at all. The list of options in the `<select>` is only a suggestion; the browser does not enforce it. Only the server is under our control, so it is the only place where the rules can be trusted. Here the rule `Rule::in(Ticket::TOPICS)` refused `Cooking`, so no invalid data reaches the database. Client-side checks are only a comfort for the user.
