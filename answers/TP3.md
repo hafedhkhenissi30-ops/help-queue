@@ -62,3 +62,33 @@ It comes from the rule **`'exists:topics,id'`** on `topic_id` in `store()`: Lara
 I clicked the **Laravel** badge of the first ticket: the page `/topics/2` shows **Topic: Laravel — 2 tickets**.
 (With my data, the counts per topic are: Git 4, Laravel 2, Blade 1, Database 2, Setup 0. The numbers change after each `migrate:fresh --seed`, because the seeder picks a random topic for each ticket.)
 The page lists the tickets through the relationship `$topic->tickets()`, which runs `select * from tickets where topic_id = 2 order by id`.
+
+## Exercise 7
+
+`/` now redirects (302) to `/tickets`.
+
+**Question 7. How many items does `/queue.json` contain? Which fields does the topic object contain? Name a program, other than a browser, that could use this data.**
+
+The list contains **9 items**: exactly the tickets of the *Waiting (9)* section (the route uses the `waiting()` scope, so tickets being helped or done are not included). One item:
+
+```json
+{
+  "id": 1,
+  "name": "Jerel",
+  "description": "Vel facilis facilis amet eligendi quae quasi.",
+  "status": "waiting",
+  "created_at": "2026-11-25T09:46:05.000000Z",
+  "updated_at": "2026-11-25T09:46:05.000000Z",
+  "topic_id": 2,
+  "topic": {
+    "id": 2,
+    "name": "Laravel",
+    "created_at": "2026-11-25T09:46:05.000000Z",
+    "updated_at": "2026-11-25T09:46:05.000000Z"
+  }
+}
+```
+
+The `topic` object contains the 4 columns of the `topics` table: **`id`, `name`, `created_at`, `updated_at`** (it is there because of `with('topic')`).
+
+Programs that could use it: a **mobile app** (Android/iOS) showing the queue to students, a JavaScript front-end (React/Vue), a **screen in the classroom** that refreshes the queue, a Python script (`requests.get(...).json()`) computing statistics, `curl`/Postman, or a Discord/Slack bot announcing the next student.
