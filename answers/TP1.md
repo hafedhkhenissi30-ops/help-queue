@@ -27,3 +27,10 @@
 **Question 3. Why does `/hello/a/b` not work?**
 
 It answers **404**. The parameter `{name}` matches exactly **one segment** of the address, and a segment stops at the `/`. `/hello/a/b` has three segments (`hello`, `a`, `b`), while the route `/hello/{name}` only has two, so no route matches.
+
+## Exercise 5
+
+**Question 4. What do you see for `/hello/<marquee>Bob`? What does it tell you about `{{ }}`?**
+
+The page shows the text **`Hello <marquee>Bob!`** literally: no scrolling text. In the source code (Ctrl+U) the tag has become `Hello &lt;marquee&gt;Bob!`.
+`{{ }}` **escapes** the value: it converts the special HTML characters (`<`, `>`, `&`, `"`, `'`) into entities, so the browser shows them as text instead of running them as HTML. This protects the page against **XSS** (a user injecting HTML or JavaScript, for example a `<script>` tag, through the address or a form).
