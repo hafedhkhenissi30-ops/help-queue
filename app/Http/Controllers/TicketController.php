@@ -8,21 +8,12 @@ use Illuminate\Validation\Rule;
 
 class TicketController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $topic = $request->query('topic');
-
-        $query = Ticket::orderBy('created_at');
-
-        // /tickets?topic=Git shows only the Git tickets
-        if ($topic) {
-            $query->where('topic', $topic);
-        }
-
         return view('tickets.index', [
-            'tickets' => $query->get(),
-            'topics' => Ticket::TOPICS,
-            'currentTopic' => $topic,
+            'helping' => Ticket::helping()->get(),
+            'waiting' => Ticket::waiting()->get(),
+            'doneCount' => Ticket::where('status', 'done')->count(),
         ]);
     }
 
