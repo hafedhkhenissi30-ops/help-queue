@@ -30,3 +30,17 @@ The scope produces a query that selects all the columns of `tickets`, keeps only
 
 I created a ticket "Hafedh Khenissi" (Database) through the form. Its page (`/tickets/10`) says **6 people ahead of you.**
 In the queue, the **Waiting (7)** section lists: 1. Anne, 2. Emelie, 3. Jasmin, 4. Jade, 5. Meagan, 6. Hafedh, **7. Hafedh Khenissi**. I am 7th, so there are indeed **6** people before me. Marquise (*Being helped*) and the ticket that is *done* are not counted, because the count uses the `waiting()` scope: `Ticket::waiting()->where('id', '<', $ticket->id)->count()`.
+
+## Exercise 4
+
+After `php artisan migrate:fresh --seed`, `Ticket::first()->topic->name` prints **Laravel** in tinker: the relationship works.
+
+**Question 4. Open `/tickets`. What do the topic badges contain now? Explain why.**
+
+The badges now contain **JSON**, the whole topic object, for example:
+
+```
+{"id":2,"name":"Laravel","created_at":"2026-11-25T09:46:05.000000Z","updated_at":"2026-11-25T09:46:05.000000Z"}
+```
+
+The `topic` column no longer exists (the migration dropped it and added `topic_id`). In the views, `$ticket->topic` now calls the new `topic()` **belongsTo relationship**, which returns a `Topic` model, not a text. When Blade prints an object with `{{ }}`, Eloquent converts the model to a string, and a model converted to a string becomes its JSON representation. To show only the name we must write `$ticket->topic->name` (exercise 5).
