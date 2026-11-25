@@ -23,3 +23,10 @@ select * from "tickets" where "status" = ? order by "id" asc
 ```
 
 The scope produces a query that selects all the columns of `tickets`, keeps only the rows whose `status` equals a value, sorted by `id` from the smallest to the largest (the oldest ticket first). The `?` is a placeholder: the value `'waiting'` is sent separately to the database (a *prepared statement*), which protects against SQL injection. `toSql()` shows the query without running it.
+
+## Exercise 3
+
+**Question 3. How many people are ahead of you? Check it by counting the Waiting section.**
+
+I created a ticket "Hafedh Khenissi" (Database) through the form. Its page (`/tickets/10`) says **6 people ahead of you.**
+In the queue, the **Waiting (7)** section lists: 1. Anne, 2. Emelie, 3. Jasmin, 4. Jade, 5. Meagan, 6. Hafedh, **7. Hafedh Khenissi**. I am 7th, so there are indeed **6** people before me. Marquise (*Being helped*) and the ticket that is *done* are not counted, because the count uses the `waiting()` scope: `Ticket::waiting()->where('id', '<', $ticket->id)->count()`.
