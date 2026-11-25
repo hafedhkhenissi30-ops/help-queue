@@ -73,3 +73,9 @@ Illuminate\Database\Eloquent\MassAssignmentException  Add [name] to fillable pro
 ```
 
 After adding `$fillable` and restarting tinker, the three tickets were created and `Ticket::count()` answered **3**.
+
+## Exercise 9
+
+**Question 7. Which number does your ticket have, and why?**
+
+My ticket (Hafedh, Laravel) is **number 4**, the last one. The controller sorts the tickets with `orderBy('created_at')`, from the oldest to the newest, and mine was created after Lina, Omar and Sara. The number itself comes from `$loop->iteration` in the `@forelse` loop: the position of the ticket in the list, starting at 1 (it is not the ticket's `id`).
