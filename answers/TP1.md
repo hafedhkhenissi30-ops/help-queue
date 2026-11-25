@@ -79,3 +79,37 @@ After adding `$fillable` and restarting tinker, the three tickets were created a
 **Question 7. Which number does your ticket have, and why?**
 
 My ticket (Hafedh, Laravel) is **number 4**, the last one. The controller sorts the tickets with `orderBy('created_at')`, from the oldest to the newest, and mine was created after Lina, Omar and Sara. The number itself comes from `$loop->iteration` in the `@forelse` loop: the position of the ticket in the list, starting at 1 (it is not the ticket's `id`).
+
+## Bonus
+
+- Route `Route::get('/tickets/{ticket}', [TicketController::class, 'show']);`
+- Method `show(Ticket $ticket)` in `TicketController`, which returns the view `tickets/show.blade.php` (name, topic, description and `{{ $ticket->created_at->diffForHumans() }}`, for example "Asked 11 seconds ago").
+- Each name in the list is now a link to `/tickets/{id}`.
+
+**What happens for `/tickets/999`?** Laravel answers **404 Not Found**. Because the parameter is typed `Ticket $ticket`, Laravel itself looks for the ticket with `id = 999` in the database (*route model binding*). No ticket has this id, so it stops and returns a 404 page before the `show()` method is even called.
+
+## Final questions
+
+**1. When you open `/tickets`, which files does the request go through, and in which order?**
+
+1. `public/index.php` — the single entry point; it starts Laravel (`bootstrap/app.php`).
+2. `routes/web.php` — Laravel finds the route `GET /tickets` → `TicketController@index`.
+3. `app/Http/Controllers/TicketController.php` — the `index()` method runs.
+4. `app/Models/Ticket.php` — `Ticket::orderBy('created_at')->get()` reads the `tickets` table in `database/database.sqlite`.
+5. `resources/views/tickets/index.blade.php` — the view receives `$tickets` and builds the list…
+6. …inside `resources/views/layouts/app.blade.php` (`@extends`), which provides the HTML page, the style and the header.
+
+The HTML produced is sent back to the browser.
+
+**2. What is a migration for? Why is it better than a table created by hand?**
+
+A migration is a PHP file that describes a change to the database structure (create a table, add a column…). `php artisan migrate` runs the ones that have not run yet.
+It is better than a table created by hand because:
+- it is **code saved in Git**: everyone in the team (and the teacher, and a server) gets exactly the same tables by running one command;
+- it keeps the **history** of the structure, in order, and can be undone (`down()`, `migrate:rollback`);
+- it works the same way on SQLite, MySQL or PostgreSQL;
+- the database can be rebuilt from nothing at any time (`migrate:fresh`), without remembering manual steps.
+
+**3. Why did `Ticket::create(...)` fail before you added `$fillable`?**
+
+Because of **mass assignment protection**. `create([...])` fills several columns at once from an array. By default an Eloquent model accepts none of them, to prevent an attacker from sending extra fields (for example `status` or `is_admin`) that would be saved blindly by `Ticket::create($request->all())`. You must list explicitly the columns that may be filled this way in `$fillable`; until `name` was in that list, Laravel threw a `MassAssignmentException`. `status` is deliberately not in the list: it keeps its default value `waiting`.
