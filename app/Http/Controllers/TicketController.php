@@ -8,11 +8,22 @@ use Illuminate\Validation\Rule;
 
 class TicketController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $tickets = Ticket::orderBy('created_at')->get();
+        $topic = $request->query('topic');
 
-        return view('tickets.index', ['tickets' => $tickets]);
+        $query = Ticket::orderBy('created_at');
+
+        // /tickets?topic=Git shows only the Git tickets
+        if ($topic) {
+            $query->where('topic', $topic);
+        }
+
+        return view('tickets.index', [
+            'tickets' => $query->get(),
+            'topics' => Ticket::TOPICS,
+            'currentTopic' => $topic,
+        ]);
     }
 
     public function create()

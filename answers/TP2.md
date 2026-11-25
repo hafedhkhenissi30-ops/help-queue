@@ -104,3 +104,26 @@ Deleting ticket 2: the browser asks **"Remove this ticket?"**, then I am back on
 **Nothing changed** in the result: the same 5 routes, with the same methods, addresses, names and controller methods (I compared both outputs line by line: identical). Only `routes/web.php` is shorter: one instruction instead of five lines.
 
 `Route::resource` works directly because our controller already follows Laravel's **resource conventions**: the methods are called `index`, `create`, `store`, `show` and `destroy`, the routes are named `tickets.index`, `tickets.create`… and the parameter is `{ticket}` (the singular of `tickets`), which still matches `show(Ticket $ticket)` and `destroy(Ticket $ticket)`. Laravel also puts `tickets/create` before `tickets/{ticket}` by itself. `->only([...])` leaves out `edit` and `update`, which we have not written.
+
+## Exercise 8
+
+See `answers/TP2-tests.md`: the six tests pass (8 tickets after seeding, my ticket added at the end with the green message, 2 errors for an empty form, the name kept after a refused form, Details opens the right ticket and `/tickets/999` gives 404, deleting asks for confirmation and shows *Ticket removed.*).
+
+## Bonus
+
+`/tickets?topic=Git` shows only the Git tickets, and a line of links above the list (*All · Git · Laravel · Blade · Database · Setup*) changes the filter.
+In `index(Request $request)`, `$request->query('topic')` reads the value from the address; if there is one, `$query->where('topic', $topic)` adds the condition to the query before `get()`. The links are built with `route('tickets.index', ['topic' => $topic])`, which produces `/tickets?topic=Git`.
+
+## Final questions
+
+**1. Why did `/tickets/create` answer 404 before its route was moved?**
+
+Routes are checked from top to bottom and the first match wins. `/tickets/{ticket}` was above and `{ticket}` matches any segment, including the word `create`. Laravel then looked for a ticket with the id `create` (route model binding), found none and answered 404. Placing `/tickets/create` above `/tickets/{ticket}` fixes it.
+
+**2. What does `@csrf` protect against, and which error do you get without it?**
+
+Against **CSRF (Cross-Site Request Forgery)**: another website making a user's browser send a request (create, delete…) to our application without the user knowing. `@csrf` adds a hidden `_token` field holding a secret token tied to the session; another site cannot know it. Without it, Laravel answers **419 Page Expired** (CSRF token mismatch). Note: with Laravel 13 and a modern browser, a form sent from our *own* site is also accepted thanks to the `Sec-Fetch-Site: same-origin` header, but any request from another site or without that header still gets 419.
+
+**3. Why must validation run on the server, even when the form already limits the choices?**
+
+Because the user controls the browser: the developer tools can change any option (we sent `Cooking`), and a request can be sent without the form at all (curl, Postman, a script). Only the server cannot be changed by the user, so only server-side validation (`$request->validate(...)` with `Rule::in(Ticket::TOPICS)`) guarantees that the data saved in the database is valid.
