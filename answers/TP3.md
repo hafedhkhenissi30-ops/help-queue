@@ -92,3 +92,18 @@ The list contains **9 items**: exactly the tickets of the *Waiting (9)* section 
 The `topic` object contains the 4 columns of the `topics` table: **`id`, `name`, `created_at`, `updated_at`** (it is there because of `with('topic')`).
 
 Programs that could use it: a **mobile app** (Android/iOS) showing the queue to students, a JavaScript front-end (React/Vue), a **screen in the classroom** that refreshes the queue, a Python script (`requests.get(...).json()`) computing statistics, `curl`/Postman, or a Discord/Slack bot announcing the next student.
+
+## Exercise 8
+
+`README.md` now contains the installation steps, in the required order, plus the note about the database file.
+
+I checked my own README by following it in a **new folder**: `git clone`, then the same commands. The `migrate --seed` command warned that `database/database.sqlite` did not exist and offered to create it; after answering *yes*, the 7 migrations ran and the seeder created **8 tickets and 5 topics**.
+
+**Question 8. Did your neighbour's project start? If not, which step was missing from their README?**
+
+*To complete in class after swapping repositories with my neighbour:*
+- Neighbour and repository: …
+- Did it start? …
+- Missing step (if any): …
+
+Steps that are often forgotten and make a project fail: `composer install` (no `vendor/` folder → *Failed opening required vendor/autoload.php*), `cp .env.example .env` and `php artisan key:generate` (*No application encryption key has been specified*), `npm install` (*vite: command not found* with `composer run dev`), and `php artisan migrate --seed` (*no such table: tickets*).
