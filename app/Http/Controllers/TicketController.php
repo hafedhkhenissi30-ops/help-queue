@@ -37,4 +37,11 @@ class TicketController extends Controller
     {
         return view('tickets.show', ['ticket' => $ticket]);
     }
+
+    public function destroy(Ticket $ticket)
+    {
+        $ticket->delete();
+
+        return redirect()->route('tickets.index')->with('message', 'Ticket removed.');
+    }
 }

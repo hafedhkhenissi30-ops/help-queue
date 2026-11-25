@@ -58,3 +58,17 @@ The name **stays in the field** ("Hafedh" is still there after the refused submi
 **Question 6. Why must validation always run on the server?**
 
 Because everything on the client side can be changed by the user: the HTML of the form (developer tools), or the whole request (curl, Postman, a script) without using the form at all. The list of options in the `<select>` is only a suggestion; the browser does not enforce it. Only the server is under our control, so it is the only place where the rules can be trusted. Here the rule `Rule::in(Ticket::TOPICS)` refused `Cooking`, so no invalid data reaches the database. Client-side checks are only a comfort for the user.
+
+## Exercise 6
+
+Deleting ticket 2: the browser asks **"Remove this ticket?"**, then I am back on the queue with the message **"Ticket removed."**, and `/tickets/2` now answers 404.
+
+**Question 7. Which hidden fields does the delete form contain, and what is each one for?**
+
+```html
+<input type="hidden" name="_token" value="4ViuUnG69lPmgrPxUn1hllq2CXM0PWbu8OXSWp1R" autocomplete="off">
+<input type="hidden" name="_method" value="DELETE">
+```
+
+- **`_token`**, produced by `@csrf`: the secret CSRF token of my session. Laravel compares it with the one stored in the session to check the request really comes from our own page (protection against CSRF).
+- **`_method`** with the value `DELETE`, produced by `@method('DELETE')`: HTML forms can only send GET or POST. The form is sent as POST, and Laravel reads `_method` to treat it as a **DELETE** request, so it matches the route `Route::delete('/tickets/{ticket}', ...)` (method spoofing).
